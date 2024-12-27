@@ -1,5 +1,7 @@
 ## blackjack card game
 
+from card import Card
+from deck import Deck
 import random
 import time
 
@@ -56,17 +58,19 @@ def main():
         except ValueError as e:
             print("Please enter a valid number.")
 
-    shoe = build_shoe(build_deck(), num_decks)
-    shuffle(shoe)
-    deal(shoe, players)
+    # Create and shuffle the deck
+    deck = Deck(num_decks) # Initialize the Deck with the specified number of decks
+    deck.shuffle()         # Shuffle the deck
 
+    # Deal cards to players and the dealer
+    deal(deck, players)
 
 def build_deck():
     """Builds a single deck of cards using suits and cards"""
     deck = []
-    for card_value in cards.values():
-        for suit_symbol in suits.values():
-            deck.append(card_value + suit_symbol)
+    for  value in cards.values():
+        for suit in suits.values():
+            deck.append(Card(value, suit))
     return deck
 
 def build_shoe(deck, num_decks):
@@ -76,62 +80,31 @@ def build_shoe(deck, num_decks):
 def shuffle(cards):
     return random.shuffle(cards)
 
-def deal(shoe, players):
-    # empty list with logic to build empty lists to hold players hands depending on how many players
+def deal(deck, players):
+    """Simplified logic to deal two cards to each player and the dealer."""
+    # Initialize hands for players and dealer
     player_hands = [[] for _ in range(players)]
-
-    # empty lsit for the dealer's hand
     dealer_hand = []
 
-    # dealers face down card as to not display it when hand is dealt
-    dealer_hidden_card = None
-    
-    # empty list for the cards already played in a shoe / deck
-    # discard pile is also used in testing to print cards already used to check that logic is behavng as expected
-    discard_pile = []
-    
-    """Logic to deal the cards to the players in turn from player 1 - (2-7) then dealer.
-    Dealers second card gets dealt face down and the actual card is placed in a list called dealer_hidden_card"""
-    for i in range(2):
-        for j in range(players): # num players is set via input from the player
-            card = shoe.pop(0)
-            discard_pile.append(card)
-            player_hands[j].append(card)
-            print(f"Player {j + 1} gets a {card}")
-            time.sleep(1)
-        dealer_card = shoe.pop(0)
-        discard_pile.append(dealer_card)
-        if i == 0:
-            dealer_hand.append(dealer_card)
-            print(f"Dealer gets a {dealer_card}")
-            time.sleep(1)
-        else:
-            dealer_hidden_card = dealer_card
-            dealer_hand.append("🃏")
-            print("Dealer gets a 🃏")
+    # Deal two cards to each player and the dealer
+    for _ in range(2):
+        for i in range(players):
+            player_hands[i].append(deck.deal_card())
+        dealer_hand.append(deck.deal_card())
+
+    # Display each player's hand
     for idx, hand in enumerate(player_hands, start=1):
-        hand_value = calculate_hand(hand)
-        print(f"Player {idx}'s hand: {' '.join(hand)} (Value: {hand_value})")
-        time.sleep(1)
-    
-    dealer_hand_value = calculate_hand([dealer_hand[0]])
-    print(f"Dealers hand: {dealer_hand[0]} 🃏 (Showing: {dealer_hand_value})")
-    # print(f"\nRemaining shoe cards: {len(shoe)}\n{shoe}")
-    # print(f"\nDiscard pile: {len(discard_pile)}\n{discard_pile}")
+        print(f"Player {idx}'s hand: {' '.join(str(card) for card in hand)}")
 
-
-
-    ### SAVE FOR LATER  ###
-    #  Revealing dealers hand and value 
-    """ dealer_hand[1] = dealer_hidden_card
-    print(f"Dealer has: {' '.join(dealer_hand)} (Value: {calculate_hand(dealer_hand)})") """
+    # Display the dealer's hand
+    print(f"Dealer's hand: {dealer_hand[0]} 🃏")
 
 def calculate_hand(hand):
     value = 0
     aces = 0
 
     for card in hand:
-        card_value = card[:-2]
+        card_value = card.value
         if card_value in ["J", "Q", "K"]:
             value += 10
         elif card_value == "A":
