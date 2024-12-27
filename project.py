@@ -94,12 +94,14 @@ def deal(deck, players):
 
     # Display each player's hand
     for idx, hand in enumerate(player_hands, start=1):
-        print(f"Player {idx}'s hand: {' '.join(str(card) for card in hand)}")
+        hand_value = calculate_hand(hand)
+        print(f"Player {idx}'s hand: {' '.join(str(card) for card in hand)} (Value: {hand_value})")
 
     # Display the dealer's hand
     print(f"Dealer's hand: {dealer_hand[0]} 🃏")
 
 def calculate_hand(hand):
+    """Calculates the total value of a hand in blackjack."""
     value = 0
     aces = 0
 
