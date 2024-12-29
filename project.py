@@ -2,6 +2,8 @@
 
 from card import Card
 from deck import Deck
+from player import Player
+from dealer import Dealer
 import random
 import time
 
@@ -81,24 +83,24 @@ def shuffle(cards):
     return random.shuffle(cards)
 
 def deal(deck, players):
-    """Simplified logic to deal two cards to each player and the dealer."""
-    # Initialize hands for players and dealer
-    player_hands = [[] for _ in range(players)]
-    dealer_hand = []
+    """Deals the cards to the players and dealer."""
+    # Initialize players and dealer
+    player_objects = [Player(f"Player {i+1}") for i in range(players)]
+    dealer = Dealer()
 
-    # Deal two cards to each player and the dealer
+    # Deal two cards to each player and dealer
     for _ in range(2):
-        for i in range(players):
-            player_hands[i].append(deck.deal_card())
-        dealer_hand.append(deck.deal_card())
+        for player in player_objects:
+            player.add_card(deck.deal_card())
+        dealer.add_card(deck.deal_card())
 
-    # Display each player's hand
-    for idx, hand in enumerate(player_hands, start=1):
-        hand_value = calculate_hand(hand)
-        print(f"Player {idx}'s hand: {' '.join(str(card) for card in hand)} (Value: {hand_value})")
-
-    # Display the dealer's hand
-    print(f"Dealer's hand: {dealer_hand[0]} 🃏")
+    # show each player's hand
+    for player in player_objects:
+        print(f"{player.name}'s hand: {player.show_hand()} (Value: {player.calculate_hand()})")
+    
+    # show the dealer's hand with one card hidden
+    print(f"{dealer.name}'s hand: {dealer.show_hand(hide_first_card=True)}")
+  
 
 def calculate_hand(hand):
     """Calculates the total value of a hand in blackjack."""
